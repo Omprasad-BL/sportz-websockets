@@ -7,11 +7,11 @@ import {
     timestamp,
     jsonb,
     text,
+    uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
 /**
  * ENUM: match_status
- * Represents lifecycle of a match
  */
 export const matchStatusEnum = pgEnum('match_status', [
     'scheduled',
@@ -52,68 +52,44 @@ export const matches = pgTable('matches', {
 
 /**
  * TABLE: commentary
- *
- * Designed for:
- * - High write throughput (live updates)
- * - Ordered events
- * - Flexible metadata storage
  */
-export const commentary = pgTable('commentary', {
-    id: serial('id').primaryKey(),
+export const commentary = pgTable(
+    'commentary',
+    {
+        id: serial('id').primaryKey(),
 
-    matchId: integer('match_id')
-        .notNull()
-        .references(() => matches.id, { onDelete: 'cascade' }),
+        matchId: integer('match_id')
+            .notNull()
+            .references(() => matches.id, { onDelete: 'cascade' }),
 
-    minute: integer('minute'),
+        minute: integer('minute'),
 
-    /**
-     * sequence:
-     * Used to guarantee strict ordering
-     * Example: 1, 2, 3, 4 for each event
-     */
-    sequence: integer('sequence').notNull(),
+        sequence: integer('sequence').notNull(),
 
-    /**
-     * period:
-     * e.g. "1H", "2H", "OT", "Q1", "Q2"
-     */
-    period: varchar('period', { length: 20 }),
+        period: varchar('period', { length: 20 }),
 
-    /**
-     * eventType:
-     * goal, foul, substitution, timeout, etc.
-     */
-    eventType: varchar('event_type', { length: 100 }),
+        eventType: varchar('event_type', { length: 100 }),
 
-    actor: varchar('actor', { length: 150 }),
+        actor: varchar('actor', { length: 150 }),
 
-    team: varchar('team', { length: 150 }),
+        team: varchar('team', { length: 150 }),
 
-    message: text('message').notNull(),
+        message: text('message').notNull(),
 
-    /**
-     * metadata:
-     * Flexible JSONB field
-     * Example:
-     * {
-     *   playerId: 12,
-     *   assistBy: 9,
-     *   xg: 0.43
-     * }
-     */
-    metadata: jsonb('metadata'),
+        metadata: jsonb('metadata'),
 
-    /**
-     * tags:
-     * Optional categorization
-     * Example: ["goal", "highlight"]
-     */
-    tags: jsonb('tags'),
+        tags: jsonb('tags'),
 
-    createdAt: timestamp('created_at', { withTimezone: true })
-        .defaultNow()
-        .notNull(),
-});
-
-
+        createdAt: timestamp('created_at', { withTimezone: true })
+            .defaultNow()
+            .notNull(),
+    },
+    (table) => ({
+        /**
+         * 🔒 Enforce strict ordering per match
+         * Prevent duplicate sequence values inside same match
+         */
+        uniqueMatchSequence: uniqueIndex('commentary_match_sequence_unique')
+            .on(table.matchId, table.sequence),
+    })
+);

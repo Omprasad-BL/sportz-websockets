@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "commentary_match_sequence_unique" ON "commentary" USING btree ("match_id","sequence");
