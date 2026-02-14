@@ -10,11 +10,12 @@ const app= express();
 const  server=http.createServer(app);
 
 app.use(express.json())
+app.use("/matches",matchRouter);
+
 app.get("/",(req,res)=>{
     res.send("Hello World!");
 })
 
-app.use("/matches",matchRouter);
 
 const  {broadcastMatchCreated}= attachWebSocketServer(server);
 
