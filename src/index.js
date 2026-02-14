@@ -5,11 +5,13 @@ import {attachWebSocketServer} from "../ws/server.js";
 const PORT = process.env.PORT || 8000;
 const HOST=process.env.HOST|| "0.0.0.0";
 import { WebSocketServer , WebSocket} from "ws";
+import {securityMiddleware} from "./arcjet.js";
 
 const app= express();
 const  server=http.createServer(app);
 
 app.use(express.json())
+app.use(securityMiddleware() )
 app.use("/matches",matchRouter);
 
 app.get("/",(req,res)=>{
