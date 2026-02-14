@@ -11,11 +11,12 @@ const app= express();
 const  server=http.createServer(app);
 
 app.use(express.json())
+app.use(securityMiddleware() )
+app.use("/matches",matchRouter);
+
 app.get("/",(req,res)=>{
     res.send("Hello World!");
 })
-app.use(securityMiddleware() )
-app.use("/matches",matchRouter);
 
 const  {broadcastMatchCreated}= attachWebSocketServer(server);
 
