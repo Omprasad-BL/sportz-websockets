@@ -15,6 +15,13 @@
       "when": 1770972780348,
       "tag": "0001_peaceful_smasher",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771235228043,
+      "tag": "0002_thick_dorian_gray",
+      "breakpoints": true
     }
   ]
 }
