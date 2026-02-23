@@ -84,12 +84,12 @@ export const commentary = pgTable(
             .defaultNow()
             .notNull(),
     },
-    (table) => ({
-        /**
-         * 🔒 Enforce strict ordering per match
-         * Prevent duplicate sequence values inside same match
-         */
-        uniqueMatchSequence: uniqueIndex('commentary_match_sequence_unique')
-            .on(table.matchId, table.sequence),
-    })
+    // (table) => ({
+    //     /**
+    //      * 🔒 Enforce strict ordering per match
+    //      * Prevent duplicate sequence values inside same match
+    //      */
+    //     uniqueMatchSequence: uniqueIndex('commentary_match_sequence_unique')
+    //         .on(table.matchId, table.sequence),
+    // })
 );

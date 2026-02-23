@@ -1,0 +1,1 @@
+DROP INDEX "commentary_match_sequence_unique";

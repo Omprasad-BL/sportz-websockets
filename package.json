@@ -5,12 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "demo": "node src/crud-demo.js"
+    "demo": "node src/crud-demo.js",
+    "db:seed": "node src/seed/seed.js",
+    "dev:server": "node src/index.js",
+    "dev:client": "npm run dev --prefix src/client",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
   },
   "keywords": [],
   "author": "",
@@ -19,6 +22,8 @@
   "dependencies": {
     "@arcjet/inspect": "^1.1.0",
     "@arcjet/node": "^1.1.0",
+    "apminsight": "^5.3.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "express": "^5.2.1",
@@ -30,6 +35,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.16.0",
+    "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.9"
   }
 }

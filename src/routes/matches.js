@@ -67,3 +67,52 @@ matchRouter.post("/", async (req, res) => {
         });
     }
 });
+
+import { eq } from "drizzle-orm";
+
+/**
+ * PATCH /matches/:id/score
+ * Updates match scores in the DB and broadcasts to all connected clients.
+ */
+matchRouter.patch("/:id/score", async (req, res) => {
+    const { id } = req.params;
+    const { homeScore, awayScore } = req.body;
+
+    // 1. Sanitize the ID and Scores
+    const matchId = Number(id);
+    if (isNaN(matchId)) {
+        return res.status(400).json({ error: "Invalid match ID" });
+    }
+
+    try {
+        // 2. Update the Database
+        const [updatedMatch] = await db
+            .update(matches)
+            .set({
+                homeScore: Number(homeScore ?? 0),
+                awayScore: Number(awayScore ?? 0)
+            })
+            .where(eq(matches.id, matchId))
+            .returning();
+
+        if (!updatedMatch) {
+            return res.status(404).json({ error: "Match not found" });
+        }
+
+        // 3. Trigger WebSocket Broadcast
+        // We explicitly add 'matchId' so the frontend App.jsx finds it
+        if (res.app.locals.broadcastMatchCreated) {
+            res.app.locals.broadcastMatchCreated({
+                ...updatedMatch,
+                matchId: updatedMatch.id // Mapping 'id' to 'matchId' for frontend compatibility
+            });
+        }
+
+        // 4. Send success response back to seed script
+        res.status(200).json({ data: updatedMatch });
+
+    } catch (error) {
+        console.error("❌ Score Update Error:", error);
+        res.status(500).json({ error: "Failed to update score" });
+    }
+});
